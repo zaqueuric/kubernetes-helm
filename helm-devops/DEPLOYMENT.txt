@@ -1,0 +1,25 @@
+https://eduardomatos.dev/fazendo-seu-primeiro-deploy-no-kubernetes/
+
+***** Deployment
+
+docker login
+minikube start
+
+k8s config get-contexts
+           use-contexts
+
+1 - Cria sua aplicação "Linguagem ruby": 
+    app.rb
+2 - Criar o arquivo Dockerfile: 
+    Dockerfile
+3 - Build sua aplicação "Envia sua app no dockerHub": 
+    docker build . -t zaqueur/dummy-logger:1.0
+4 - Push "Puxar a sua imagem que enviaste na sua conta do dockerHub":
+    docker push zaqueur/dummy-logger:1.0
+
+--------------------------------------------------------------------------------
+1 - Criar um arquivo "yaml" pod-1
+2 - kubectl create -f pod-1.yaml # Usando o minikube apresenta "erro" 
+                                   porque por padrão ele tenta pegar svc default,
+                                   para resolver tive que criar o arquivo svc.yaml
+    2.1 - kubectl apply -f svc.yaml

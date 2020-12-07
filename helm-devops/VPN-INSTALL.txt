@@ -1,0 +1,57 @@
+# CRIAR NAMESPACE
+kubectl apply -f helm-devops/k8s-namespace-devops.yaml
+
+# INSTALAÇÃO DO OPN-VPN
+helm install openvpn-dev-test --namespace=devops-test -f kubernetes/k8s-helm-openvpn-dev.yaml stable/openvpn --version 4.2.3
+
+# VERIFICAR O IP-EXTERNO
+kubectl get svc --namespace=devops-test
+
+# ENTRAR NO POD
+kubectl -n devops-test exec -ti openvpn-dev-85bb79c5cf-psssm bash
+
+# GERAR CERTIFICADO 
+Dentro do pod (bash-4.3#) Digite: /etc/openvpn/setup/newClientCert.sh lucas 191.234.206.175 (IP-EXTERNO-DO-SERVIÇO)
+
+# DESINSTALAR O CHART
+helm uninstall openvpn-dev --namespace=vpn
+
+# SAIDA DA INSTALAÇÃO
+
+NAME: openvpn-dev
+LAST DEPLOYED: Tue Nov 24 17:03:43 2020
+NAMESPACE: vpn
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+OpenVPN is now starting.
+
+Please be aware that certificate generation is variable and may take some time (minutes).
+
+Check pod status with the command:
+
+  POD_NAME=$(kubectl get pods --namespace "vpn" -l app=openvpn -o jsonpath='{ .items[0].metadata.name }') && kubectl --namespace "vpn" logs $POD_NAME --follow
+
+LoadBalancer ingress creation can take some time as well. Check service status with the command:
+
+  kubectl --namespace "vpn" get svc
+
+Once the external IP is available and all the server certificates are generated create client key .ovpn files by pasting the following into a shell:
+
+  POD_NAME=$(kubectl get pods --namespace "vpn" -l "app=openvpn,release=openvpn-dev" -o jsonpath='{ .items[0].metadata.name }')
+  SERVICE_NAME=$(kubectl get svc --namespace "vpn" -l "app=openvpn,release=openvpn-dev" -o jsonpath='{ .items[0].metadata.name }')
+  SERVICE_IP=$(kubectl get svc --namespace "vpn" "$SERVICE_NAME" -o go-template='{{ range $k, $v := (index .status.loadBalancer.ingress 0)}}{{
+$v }}{{end}}')
+  KEY_NAME=kubeVPN
+  kubectl --namespace "vpn" exec -it "$POD_NAME" /etc/openvpn/setup/newClientCert.sh "$KEY_NAME" "$SERVICE_IP"
+  kubectl --namespace "vpn" exec -it "$POD_NAME" cat "/etc/openvpn/certs/pki/$KEY_NAME.ovpn" > "$KEY_NAME.ovpn"
+
+Revoking certificates works just as easy:
+  KEY_NAME=<name>
+  POD_NAME=$(kubectl get pods -n "vpn" -l "app=openvpn,release=openvpn-dev" -o jsonpath='{.items[0].metadata.name}')
+  kubectl -n "vpn" exec -it "$POD_NAME" /etc/openvpn/setup/revokeClientCert.sh $KEY_NAME
+
+Copy the resulting $KEY_NAME.ovpn file to your open vpn client (ex: in tunnelblick, just double click on the file).  Do this for each user that needs to connect to the VPN.  Change KEY_NAME for each additional user.
+
+# VOCÊ PODE GERAR UM "END-POINT" E ENVIAR JUNTAMENTE COM O "CERTIFICADO" PARA O DESENVOLVEDOR
