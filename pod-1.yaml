@@ -5,4 +5,4 @@ metadata:
 spec:
   containers:
   - name: logger-container
-    image: zaqueur/dummy-logger:1.0
+    image: zaqueur/dummy-logger:2.0

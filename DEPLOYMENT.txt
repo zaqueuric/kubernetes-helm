@@ -17,9 +17,57 @@ k8s config get-contexts
 4 - Push "Puxar a sua imagem que enviaste na sua conta do dockerHub":
     docker push zaqueur/dummy-logger:1.0
 
---------------------------------------------------------------------------------
+----------------------------------------------------------------------------------
 1 - Criar um arquivo "yaml" pod-1
 2 - kubectl create -f pod-1.yaml # Usando o minikube apresenta "erro" 
                                    porque por padrão ele tenta pegar svc default,
                                    para resolver tive que criar o arquivo svc.yaml
     2.1 - kubectl apply -f svc.yaml
+
+----------------------------------------------------------------------------------
+
+NÓ (Worker NODE): é o local onde as aplicações rodam.
+POD: Menor unidade do K8s, dentro dele pode conter um ou mais container.
+DEPLOYMENT: Simplificam escalar as aplicações, e é recomendado que os PODS sejam criados aqui.
+
+O master NODE é responsável por fazer todo o trabalho pesado do K8s, nele vc encontra
+1 - Api-Server: Comunicação do cluster "kubectl fala com esse cara"
+2 - Controller Manager: Estados dos arquivos yaml
+3 - Scheduler: Decide onde um POD vai rodar
+4 - etcd: Camada de persistencia
+
+----------------------------------------------------------------------------------
+
+EXERCIÍCIOS:
+1 - Escalar sua a aplicação dummy-logger para que rode duas instancias. Para diferencia-lo do
+primeiro o novo Pod deve ter o nome dummy-logger-2, porém deve usar a mesma imagem do pod-1.yaml.
+R/: k8s create pod-1.yaml
+
+2 - Agora vamos atualizar nossa aplicação ruby para printar "Hello world from V2!".
+R/: Editar o arquivo app.rb e subir no dockerhub (Build e Push)
+
+3 - Agora faça a versão 2 da sua aplicação rodar no k8s
+R/: Alterar a versão da imagem nos arquivos pod-1 e pod-2
+
+-----------------------------------------------------------------------------------
+Para garantir que a aplicação realmente foi atualizada veja os logs: kubectl logs --tail 4 dummy-logger-1
+-----------------------------------------------------------------------------------
+
+SIMPLIFICANDO O ATO DE ESCALAR: objeto ***deployment, que da o poder de criar novos 
+pods qdo os mesmos são removidos
+
+- Cria o arquivo deployment.yaml e apply
+- Aumenta quantidade de replicas
+- Verifica os logs
+  kubectl logs --follow --tail 0 --selector="app=dummy-logger-deployment"
+
+--------------------------------------------------------------------------------------
+
+Sua missão agora é deletar pods apaga os primeiros criados sem o deployment e veja o que acontece
+em seguida apaga os que têm deploy e veja o que acontece também. 
+R/: O pod apaga definidamente o deplyment recria automaticamente os pods
+
+--------------------------------------------------------------------------------------
+**************** LANÇAMENTO DE UMA APLICAÇÃO WEB
+Pods são como uma caixa preta no cluster, não é possivel acessa-los diretamente. A maneira de expor 
+um cluster é usando um service. Services podem expor uma ou mais portas de pods. 
