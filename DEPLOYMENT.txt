@@ -85,4 +85,5 @@ kubectl get pods,services
 
 Uma forma de testarmos o redis é acessando direto de nossa máquina. Para isso é necessário redirecionar uma 
 porta especifica para nossa máquina atraves do comando: kubectl port-forward svc/redis-service 7000:9000 
-É necessário que tenhas o redis-cli também...
+É necessário que tenhas o redis-cli também (Se for no windows vai na pasta: shift+btndireto e use: 
+.\redis-cli.exe -h IP -p PORT -a PASSWORD) Exemplo: .\redis-cli.exe -h localhost -p 7000
