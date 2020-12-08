@@ -68,6 +68,21 @@ em seguida apaga os que têm deploy e veja o que acontece também.
 R/: O pod apaga definidamente o deplyment recria automaticamente os pods
 
 --------------------------------------------------------------------------------------
-**************** LANÇAMENTO DE UMA APLICAÇÃO WEB
+**************** LANÇAMENTO DE UMA APLICAÇÃO WEB (Web app e Redisdb)
 Pods são como uma caixa preta no cluster, não é possivel acessa-los diretamente. A maneira de expor 
 um cluster é usando um service. Services podem expor uma ou mais portas de pods. 
+
+***** aplicação Worker: aplicação que roda em background
+***** aplicação web
+
+1 - Deployando o Redis: Como já existe a imagem do redis no docker não precisamos nos preocupar 
+com o arquivo Dockerfile 
+1.1 - Criar redis-pod
+1.2 - Criar redis-service para expor o redis no cluster
+kubectl apply -f redis-pod.yaml
+kubectl apply -f redis-service.yaml
+kubectl get pods,services
+
+Uma forma de testarmos o redis é acessando direto de nossa máquina. Para isso é necessário redirecionar uma 
+porta especifica para nossa máquina atraves do comando: kubectl port-forward svc/redis-service 7000:9000 
+É necessário que tenhas o redis-cli também...
